@@ -31,4 +31,4 @@ curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); //Speed enhancement for 
 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
 curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
 echo curl_exec($ch);
-curl_close();
+curl_close($ch);
