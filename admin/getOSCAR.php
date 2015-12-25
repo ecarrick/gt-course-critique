@@ -22,6 +22,7 @@ while (!$found) {
         $cur_sem = 8;
         $year--;
     }
+	echo $cur_sem;
     $termNum = $year . "0" . $cur_sem;
     //Get list of all courses
     $ch = curl_init("https://oscar.gatech.edu/pls/bprod/bwckctlg.p_disp_course_detail?cat_term_in=201308&subj_code_in=$department&crse_numb_in=$course_number");
@@ -29,7 +30,7 @@ while (!$found) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $html = curl_exec($ch);
     echo $html;
-    curl_close();
+    curl_close($ch);
 
     //See if we've found the course, and parse course name
     $course_name = parser("$department $course_number - ", "<");
