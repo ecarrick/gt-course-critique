@@ -2,10 +2,6 @@
 ###### (Georgia Institute of Technology Course Critique)
 
 
-This is the official repository for Georgia Tech's Course Critique application. To host your own Course Critique, you need the following:
-
-* A database (MySQL, PostgreSQL, etc.)
-* A web server with PHP > 5.3.*
-* [ElasticSearch running the JDBC river](https://github.com/jprante/elasticsearch-river-jdbc)
-
-Please contact Georgia Tech's SGA for more detailed instructions on how to host your own Course Critique
+This is a modified fork of the official repository for Georgia Tech's Course Critique application. To host your own Course Critique you can follow the parent project's instructions.
+To utilize the additions, two new tables need to be created. Each table holds all of the humanities or social science classes respectively.
+A CSV of each collection of classes can be found under /csv
