@@ -8,7 +8,7 @@ include("config.php");
 //Connect to MySQL
 $db = new database;
 //Get data
-$list = $db->pdo->prepare("SELECT  data.Course, ROUND(AVG(data.GPA),2) as GPA, COUNT(*) as rcount, ROUND(AVG(data.A)) as A, ROUND(AVG(data.B)) as B, ROUND(AVG(data.C)) as C, ROUND(AVG(data.D)) as D, ROUND(AVG(data.F)) as F,  ROUND(AVG(data.W)) as W
+$list = $db->pdo->prepare("SELECT  data.Course, data.courseID, ROUND(AVG(data.GPA),2) as GPA, COUNT(*) as rcount, ROUND(AVG(data.A)) as A, ROUND(AVG(data.B)) as B, ROUND(AVG(data.C)) as C, ROUND(AVG(data.D)) as D, ROUND(AVG(data.F)) as F,  ROUND(AVG(data.W)) as W
 											FROM data 
 											INNER JOIN human on data.courseID=human.courseID
 											WHERE GPA != 0
@@ -53,7 +53,8 @@ $courseList = $list->fetchAll(PDO::FETCH_OBJ);
     <body>
         <img src="img/beta_ribbon.png" class="beta-ribbon" alt="beta" />
         <div class="container">
-
+			<h1>Humanities</h1>
+			<button type="button" id="nextOnly" class="btn btn-primary" onclick="nextSem();">Classes Offered Next Semester</button>
             <!-- Table -->
             <table class="table table-striped table-bordered" id="dataTable" style="margin-top: 10px;" >
                 <thead>
@@ -84,40 +85,38 @@ $courseList = $list->fetchAll(PDO::FETCH_OBJ);
 				var courses = <?php echo json_encode($courseList); ?>;
 				var count = courses.length;
 				$.each(courses, function(index, elem){
-						$("#fullTable").append("<tr><td>"+elem.Course+"</td><td>"+elem.GPA+"</td><td>"+elem.rcount+"</td><td>"+elem.A+"</td><td>"+elem.B+"</td><td>"+elem.C+"</td><td>"+elem.D+"</td><td>"+elem.F+"</td><td>"+elem.W+"</td></tr>");
+						$("#fullTable").append("<tr id="+elem.courseID+"><td>"+elem.Course+"</td><td>"+elem.GPA+"</td><td>"+elem.rcount+"</td><td>"+elem.A+"</td><td>"+elem.B+"</td><td>"+elem.C+"</td><td>"+elem.D+"</td><td>"+elem.F+"</td><td>"+elem.W+"</td></tr>");
 						if (!--count) initTable();
 				})
 				
-                $(document).ready(function() {
+				var nextSemester;
+				$.get( "https://soc.courseoff.com/gatech/terms", function( data ) {
+					nextSemester = data[data.length - 1].ident;
+				}, "json" );
+				
+				function nextSem(){
+					$.each(courses, function(index, elem){
+						//console.log(elem);
+						//console.log("https://soc.courseoff.com/gatech/terms/"+nextSemester+"/majors/"+elem.Course.split(" ")[0]+"/courses/"+elem.Course.split(" ")[1] );
+						$.ajax({ 
+							url: "https://soc.courseoff.com/gatech/terms/"+nextSemester+"/majors/"+elem.Course.split(" ")[0]+"/courses/"+elem.Course.split(" ")[1],
+							type: 'get',
+							success: function( data ) {
+											if(!data){
+												console.log("remove");
+												$("#"+elem.courseID).hide();
+											}
+										}, 
+							error: function(XMLHttpRequest, textStatus, errorThrown){
+											$("#"+elem.courseID).hide();
+										}
+						});
 					
+						
+						
+					});
 
-					//Select each non table-head (remove duplicates as well)
-                    $("#dataTable tr:not(tr.table-head) td:first-child").each(function() {
-                        //Get course data
-                        var courseID = $(this).parent().attr("class").split(' ')[0].toUpperCase();
-                        var course = $(this).text();
-                        //Get term data
-                        var termID = $(this).parent().attr("class").split(' ')[1];
-                        var term = $(this).next().next().text();
-
-                        if (termID !== undefined && course !== 'No data available in table') {
-                            courses[courseID] = course;
-                            terms[termID] = term;
-                        }
-                    });
-					
-                    // //Generate dropdown list
-                    // //Generate nav wrapper
-                    // if (terms.length > 0) {
-                        // $("div#dataTable_wrapper > div.row > div.span6:first").append("<ul class=\"nav nav-pills\"></ul>")
-                        // //Generate the course/term buttons
-                        // genList("Courses", courses);
-                        // genList("Terms", terms);
-                        // //Filter out all but requested hash (if there is one)\
-                        // urlhashFilter();
-                    // }
-                });
-
+				};
                 function genList(outID, elements) {
                     var listOptions = '<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">' + outID + ' <b class="caret"></b></a><ul id="' + outID + '" class="dropdown-menu">';
                     //Sort keys of hashtable
